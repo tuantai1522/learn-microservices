@@ -1,10 +1,10 @@
-package sass.patientservice;
+package sass.bookservice;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class PatientServiceApplicationTests {
+class BookServiceApplicationTests {
 
     @Test
     void contextLoads() {
