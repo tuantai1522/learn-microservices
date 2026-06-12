@@ -42,7 +42,7 @@ public class BookController {
 
     @PostMapping
     @Operation(summary = "Create a new book")
-    public ResponseEntity<BookResponseDto> createPatient(
+    public ResponseEntity<BookResponseDto> createBook(
             @Validated({ Default.class }) @RequestBody BookRequestDto request) {
 
         BookResponseDto response = bookService.createBook(request);

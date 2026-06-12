@@ -6,6 +6,7 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 
 import sass.bookservice.dtos.BookResponseDto;
+import sass.bookservice.exceptions.BookNotFoundException;
 import sass.bookservice.mappers.BookMapper;
 import sass.bookservice.models.Book;
 import sass.bookservice.repositories.BookRepository;
@@ -32,17 +33,15 @@ public class BookService {
     }
 
     public BookResponseDto getBook(UUID id) {
-
         Book book = bookRepository.findById(id).orElseThrow(
-                () -> new RuntimeException("Book not found with ID: " + id));
+                () -> new BookNotFoundException("Book not found with ID: " + id));
 
         return BookMapper.toDto(book);
     }
 
     public BookResponseDto updateBook(UUID id, BookRequestDto request) {
-
         Book book = bookRepository.findById(id).orElseThrow(
-                () -> new RuntimeException("Book not found with ID: " + id));
+                () -> new BookNotFoundException("Book not found with ID: " + id));
 
         book.setName(request.name());
         book.setDescription(request.description());
@@ -52,6 +51,12 @@ public class BookService {
     }
 
     public void deleteBook(UUID id) {
-        bookRepository.deleteById(id);
+        boolean verifyExist = bookRepository.existsById(id);
+
+        if (verifyExist) {
+            bookRepository.deleteById(id);
+        } else {
+            throw new BookNotFoundException("Book not found with ID: " + id);
+        }
     }
 }
