@@ -11,6 +11,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.NotBlank;
+import sass.bookservice.exceptions.BookAlreadyBorrowedException;
 
 @Entity
 public class Book {
@@ -35,6 +36,14 @@ public class Book {
     public Book(String name, String description) {
         this.name = name;
         this.description = description;
+    }
+
+    public void borrowBook(){
+        if (status == BookStatus.BORROWED){
+            throw new BookAlreadyBorrowedException("Book is already borrowed");
+        }
+
+        status = BookStatus.BORROWED;
     }
 
     public UUID getId() {

@@ -75,4 +75,12 @@ public class BookController {
         bookService.deleteBook(id);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/borrow/{id}")
+    @Operation(summary = "Borrow a book")
+    public ResponseEntity<BookResponseDto> borrowBook(@PathVariable UUID id) {
+        BookResponseDto response = bookService.borrowBook(id);
+
+        return ResponseEntity.ok().body(response);
+    }
 }

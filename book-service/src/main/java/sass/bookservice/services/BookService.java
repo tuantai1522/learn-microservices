@@ -59,4 +59,14 @@ public class BookService {
             throw new BookNotFoundException("Book not found with ID: " + id);
         }
     }
+
+    public BookResponseDto borrowBook(UUID id) {
+        Book book = bookRepository.findById(id).orElseThrow(
+                () -> new BookNotFoundException("Book not found with ID: " + id));
+
+        book.borrowBook();
+        bookRepository.save(book);
+
+        return BookMapper.toDto(book);
+    }
 }

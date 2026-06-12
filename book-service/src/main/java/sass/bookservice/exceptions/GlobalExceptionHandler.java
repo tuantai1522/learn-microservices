@@ -7,9 +7,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,5 +38,14 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(new ApiError(404, ex.getMessage(), null));
+    }
+
+    @ExceptionHandler(BookAlreadyBorrowedException.class)
+    public ResponseEntity<ApiError> handleBookAlreadyBorrowedException(
+            BookAlreadyBorrowedException ex) {
+        log.warn("Book already borrowed {}", ex.getMessage());
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new ApiError(400, ex.getMessage(), null));
     }
 }
