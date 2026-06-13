@@ -3,12 +3,12 @@ package sass.analyticsservice.grpc;
 import io.grpc.stub.StreamObserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import sass.analytics.contract.AnalyzeBookBorrowRequest;
 import sass.analytics.contract.AnalyzeBookBorrowResponse;
 import sass.analytics.contract.AnalyticsServiceGrpc;
 
-@Component
+@Service
 public class AnalyticsGrpcService extends AnalyticsServiceGrpc.AnalyticsServiceImplBase {
     private static final Logger log = LoggerFactory.getLogger(AnalyticsGrpcService.class);
 

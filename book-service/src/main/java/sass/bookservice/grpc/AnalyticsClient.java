@@ -1,15 +1,16 @@
 package sass.bookservice.grpc;
 
 import java.time.Instant;
-import java.util.concurrent.TimeUnit;
 
 import io.grpc.ManagedChannel;
+import io.grpc.ManagedChannelBuilder;
 import io.grpc.StatusRuntimeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import sass.analytics.contract.AnalyzeBookBorrowRequest;
+import sass.analytics.contract.AnalyzeBookBorrowResponse;
 import sass.analytics.contract.AnalyticsServiceGrpc;
 import sass.bookservice.models.Book;
 
@@ -18,18 +19,16 @@ public class AnalyticsClient {
     private static final Logger log = LoggerFactory.getLogger(AnalyticsClient.class);
 
     private final AnalyticsServiceGrpc.AnalyticsServiceBlockingStub blockingStub;
-    private final AnalyticsProperties properties;
 
-    @Autowired
-    public AnalyticsClient(ManagedChannel analyticsManagedChannel, AnalyticsProperties properties) {
-        this(AnalyticsServiceGrpc.newBlockingStub(analyticsManagedChannel), properties);
-    }
+    public AnalyticsClient(
+            @Value("${analytics.grpc.host}") String serverAddress,
+            @Value("${analytics.grpc.port}") int serverPort) {
+        log.info("Connecting to Analytics Service GRPC service at {}:{}", serverAddress, serverPort);
 
-    AnalyticsClient(
-            AnalyticsServiceGrpc.AnalyticsServiceBlockingStub blockingStub,
-            AnalyticsProperties properties) {
-        this.blockingStub = blockingStub;
-        this.properties = properties;
+        ManagedChannel channel = ManagedChannelBuilder.forAddress(serverAddress, serverPort)
+                .usePlaintext()
+                .build();
+        this.blockingStub = AnalyticsServiceGrpc.newBlockingStub(channel);
     }
 
     public void analyzeBorrow(Book book) {
@@ -42,11 +41,12 @@ public class AnalyticsClient {
                 .build();
 
         try {
-            blockingStub
-                    .withDeadlineAfter(properties.timeoutMillis(), TimeUnit.MILLISECONDS)
+            AnalyzeBookBorrowResponse response = blockingStub
                     .analyzeBookBorrow(request);
+
+            log.info("Analytics gRPC call succeeded for borrowed book with message: {}", response.getMessage());
         } catch (StatusRuntimeException exception) {
-            log.warn("Analytics gRPC call failed for borrowed book {}", book.getId(), exception);
+            log.warn("Analytics gRPC call failed for borrowed book {} with exception {}", book.getId(), exception.getMessage());
         }
     }
 }
