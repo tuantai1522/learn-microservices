@@ -6,6 +6,7 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 
 import sass.bookservice.dtos.BookResponseDto;
+import sass.bookservice.grpc.AnalyticsClient;
 import sass.bookservice.exceptions.BookNotFoundException;
 import sass.bookservice.mappers.BookMapper;
 import sass.bookservice.models.Book;
@@ -15,9 +16,11 @@ import sass.bookservice.dtos.BookRequestDto;
 @Service
 public class BookService {
     private final BookRepository bookRepository;
+    private final AnalyticsClient analyticsClient;
 
-    public BookService(BookRepository bookRepository) {
+    public BookService(BookRepository bookRepository, AnalyticsClient analyticsClient) {
         this.bookRepository = bookRepository;
+        this.analyticsClient = analyticsClient;
     }
 
     public List<BookResponseDto> getBooks() {
@@ -65,8 +68,10 @@ public class BookService {
                 () -> new BookNotFoundException("Book not found with ID: " + id));
 
         book.borrowBook();
-        bookRepository.save(book);
+        Book savedBook = bookRepository.save(book);
 
-        return BookMapper.toDto(book);
+        analyticsClient.analyzeBorrow(savedBook);
+
+        return BookMapper.toDto(savedBook);
     }
 }
